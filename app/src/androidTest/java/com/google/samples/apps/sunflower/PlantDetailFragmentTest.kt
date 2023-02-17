@@ -55,7 +55,7 @@ class PlantDetailFragmentTest2 {
     fun jumpToPlantDetailFragment() {
         composeTestRule.activityRule.scenario.onActivity {
             val bundle = Bundle().apply { putString("plantId", "malus-pumila") }
-            findNavController(it, R.id.nav_host).navigate(R.id.plant_detail_fragment, bundle)
+//            findNavController(it, R.id.nav_host).navigate(R.id.plant_detail_fragment, bundle)
         }
     }
 

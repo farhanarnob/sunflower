@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.sunflower
 
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -26,6 +27,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowCompat
+import com.farhanrahman.file_create_on_broadcast.service.CustomBroadcastReceiverName
+import com.farhanrahman.file_create_on_broadcast.service.FileBroadcastReceiver
+import com.farhanrahman.file_create_on_broadcast.util.FileManager
+import com.farhanrahman.file_create_on_broadcast.util.PermissionUtil
 import com.google.accompanist.themeadapter.material.MdcTheme
 import com.google.samples.apps.sunflower.compose.SunflowerApp
 import com.google.samples.apps.sunflower.compose.home.SunflowerPage
@@ -36,6 +41,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class GardenActivity : AppCompatActivity() {
 
+
+    private val fileBroadcastReceiver = FileBroadcastReceiver()
     private val viewModel: PlantListViewModel by viewModels()
 
     private val menuProvider = object : MenuProvider {
@@ -78,5 +85,36 @@ class GardenActivity : AppCompatActivity() {
                 )
             }
         }
+        PermissionUtil.requestPermission(this)
+        if(PermissionUtil.permissions.isEmpty()){
+            FileManager.writeFile(this, FileManager.createFile(this))
+        }
+
+        registerReceiver(fileBroadcastReceiver, IntentFilter(CustomBroadcastReceiverName.com_context_FINISH_TESTING.stringName))
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode != RESULT_CANCELED) {
+            PermissionUtil.checkPermissionResult(this, requestCode, permissions, grantResults)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if( PermissionUtil.permissionToWriteAccepted){
+            FileManager.createFile(this)?.let {
+                FileManager.writeFile(this,it)
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(fileBroadcastReceiver)
     }
 }

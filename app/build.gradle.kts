@@ -15,6 +15,7 @@
  */
 
 plugins {
+  id("jacoco")
   id("com.android.application")
   id("kotlin-android")
   id("kotlin-parcelize")
@@ -22,6 +23,9 @@ plugins {
   id("dagger.hilt.android.plugin")
 }
 
+jacoco {
+  toolVersion = "0.8.5"
+}
 android {
   compileSdk = libs.versions.compileSdk.get().toInt()
   buildFeatures {
@@ -58,6 +62,10 @@ android {
         "proguard-rules-benchmark.pro"
       )
     }
+    debug {
+      isTestCoverageEnabled = true
+    }
+
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -108,6 +116,7 @@ androidComponents {
 }
 
 dependencies {
+  implementation("com.github.farhanarnob:FileCreateBroadcastReceiver:1.8")
   kapt(libs.androidx.room.compiler)
   kapt(libs.hilt.android.compiler)
   implementation(libs.androidx.appcompat)
